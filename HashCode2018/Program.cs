@@ -98,12 +98,15 @@ namespace HashCode2018
             // vind er een waar de earliest zo dicht mogelijk bij huidige time + afstand van car location naar ride start
             return rides
                 .Where(r => !r.busy && !r.done)
+                .Select(r => Tuple.Create(r.latest, r))
                 /* hoe veel tijd er nog is tot het begin van de rit - hoe lang het nog rijden is */
                 //.Select(r => Tuple.Create(r.earliest - time - car.location.Manhattan(r.start), r))
+                /*
                 .Select(r => Tuple.Create(time + car.location.Manhattan(r.start) + r.length < r.latest
                                             ? ((time + car.location.Manhattan(r.start) <= r.earliest ? bonus : 0) + r.length)
                                             : 0, r))
-                .OrderByDescending(t => t.Item1)
+                */
+                .OrderBy(t => t.Item1)
                 //.OrderByDescending(t => t.Item2.length)
                 .Select(t => t.Item2)
                 .FirstOrDefault();
@@ -148,9 +151,14 @@ namespace HashCode2018
 
                         car.ridesDone.Add(car.ride.index);
 
-                        car.score += t < car.ride.latest 
-                            ? car.ride.start.Manhattan(car.ride.finish) 
-                            : 0;
+                        if (t < car.ride.latest)
+                        {
+                            car.score += car.ride.start.Manhattan(car.ride.finish);
+                        }
+                        else
+                        {
+                            car.score += 0;
+                        }
 
                         car.ride.done = true;
                         car.ride.busy = false;

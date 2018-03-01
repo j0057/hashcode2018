@@ -17,6 +17,7 @@ namespace HashCode2018
 
     public class Ride
     {
+        public int index;
         public Tuple<int, int> start;
         public Tuple<int, int> finish;
         public int earliest;
@@ -24,12 +25,13 @@ namespace HashCode2018
         public bool busy = false;
         public bool done = false;
 
-        public static Ride Parse(string line)
+        public static Ride Parse(string line, int i)
         {
             var nums = line.Split(' ').Select(int.Parse).ToArray();
 
             return new Ride
             {
+                index = i,
                 start = Tuple.Create(nums[0], nums[1]),
                 finish = Tuple.Create(nums[2], nums[3]),
                 earliest = nums[4],
@@ -40,11 +42,12 @@ namespace HashCode2018
 
     public class Car
     {
-        public Ride currentRide = null;
+        public int index;
+        public Ride ride = null;
         public Tuple<int, int> lastLocation = Tuple.Create(0, 0);
         public int distanceToStart;
         public int distanceToFinish;
-
+        public List<int> ridesDone = new List<int>();
     }
 
     class Program
@@ -67,7 +70,64 @@ namespace HashCode2018
 
             ParseFirst(lines[0], out var rows, out var cols, out var vehicles, out var rideCount, out var bonus, out var steps);
 
-            var rides = lines.Skip(1).Select(Ride.Parse).ToList();
+            var rides = lines
+                .Skip(1)
+                .Select((line, i) => Ride.Parse(line, i))
+                .ToList();
+
+            var cars = Enumerable
+                .Range(0, vehicles)
+                .Select(i => new Car { index = i })
+                .ToList();
+
+            RunSimulation(rides, cars, bonus, steps);
+        }
+
+        static void RunSimulation(List<Ride> rides, List<Car> cars, int bonus, int steps)
+        {
+            for (int t = 0; t < steps; t++)
+            {
+                foreach (var car in cars)
+                {
+                    if (car.ride == null)
+                    {
+                        var ride = rides.FirstOrDefault(r => !r.busy && !r.done);
+                        if (ride == null)
+                        {
+                            continue;
+                        }
+                        ride.busy = true;
+                        car.ride = ride;
+                        car.distanceToStart = car.lastLocation.Manhattan(ride.start);
+                        car.distanceToFinish = ride.start.Manhattan(ride.finish);
+                    }
+
+                    if (car.distanceToStart > 0)
+                    {
+                        car.distanceToStart -= 1;
+                    }
+                    else if (t >= car.ride.earliest)
+                    {
+                        car.distanceToFinish -= 1;
+                    }
+
+                    if (car.distanceToFinish == 0)
+                    {
+                        car.lastLocation = car.ride.finish;
+
+                        car.ridesDone.Add(car.ride.index);
+
+                        car.ride.done = true;
+                        car.ride.busy = false;
+                        car.ride = null;
+                    }
+                }
+            }
+
+            foreach (var car in cars)
+            {
+                Console.WriteLine($"{car.index} {string.Join(" ", car.ridesDone)}");
+            }
         }
     }
 }

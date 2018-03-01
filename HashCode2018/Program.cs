@@ -48,6 +48,7 @@ namespace HashCode2018
         public int distanceToStart;
         public int distanceToFinish;
         public List<int> ridesDone = new List<int>();
+        public int score;
     }
 
     class Program
@@ -106,7 +107,12 @@ namespace HashCode2018
                     {
                         car.distanceToStart -= 1;
                     }
-                    else if (t >= car.ride.earliest)
+                    else if (t == car.ride.earliest)
+                    {
+                        car.score += bonus;
+                        car.distanceToFinish -= 1;
+                    }
+                    else if (t > car.ride.earliest)
                     {
                         car.distanceToFinish -= 1;
                     }
@@ -116,6 +122,10 @@ namespace HashCode2018
                         car.lastLocation = car.ride.finish;
 
                         car.ridesDone.Add(car.ride.index);
+
+                        car.score += t < car.ride.latest 
+                            ? car.ride.start.Manhattan(car.ride.finish) 
+                            : 0;
 
                         car.ride.done = true;
                         car.ride.busy = false;
@@ -128,6 +138,7 @@ namespace HashCode2018
             {
                 Console.WriteLine($"{car.index} {string.Join(" ", car.ridesDone)}");
             }
+            Console.Error.WriteLine("SCORE: {0}", cars.Sum(c => c.score));
         }
     }
 }

@@ -107,7 +107,7 @@ namespace HashCode2018
                 //.OrderBy(t => t.Item1)
                 //.OrderByDescending(t => t.Item2.length)
                 //.Select(t => t.Item2)
-                .OrderBy(r => r.length)
+                .OrderByDescending(r => r.length)
                 .ThenBy(r => r.latest)
                 .FirstOrDefault();
         }

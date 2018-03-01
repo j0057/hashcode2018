@@ -24,18 +24,21 @@ namespace HashCode2018
         public int latest;
         public bool busy = false;
         public bool done = false;
+        public int length;
 
         public static Ride Parse(string line, int i)
         {
             var nums = line.Split(' ').Select(int.Parse).ToArray();
-
+            var start = Tuple.Create(nums[0], nums[1]);
+            var finish = Tuple.Create(nums[2], nums[3]);
             return new Ride
             {
                 index = i,
-                start = Tuple.Create(nums[0], nums[1]),
-                finish = Tuple.Create(nums[2], nums[3]),
+                start = start,
+                finish = finish,
                 earliest = nums[4],
-                latest = nums[5]
+                latest = nums[5],
+                length = start.Manhattan(finish)
             };
         }
     }
@@ -84,24 +87,27 @@ namespace HashCode2018
             RunSimulation(ClosestStrategy, rides, cars, bonus, steps);
         }
 
-        static Ride FirstStrategy(List<Ride> rides, Car car, int time)
+        static Ride FirstStrategy(List<Ride> rides, Car car, int time, int bonus)
         {
             return rides.FirstOrDefault(r => !r.busy && !r.done);
         }
 
-        static Ride ClosestStrategy(List<Ride> rides, Car car, int time)
+        static Ride ClosestStrategy(List<Ride> rides, Car car, int time, int bonus)
         {
             // zo vaak mogelijk bonus : 
             // vind er een waar de earliest zo dicht mogelijk bij huidige time + afstand van car location naar ride start
             return rides
                 .Where(r => !r.busy && !r.done)
-                .Select(r => Tuple.Create(r.earliest - time - car.location.Manhattan(r.start), r))
+                /* hoe veel tijd er nog is tot het begin van de rit - hoe lang het nog rijden is */
+                //.Select(r => Tuple.Create(r.earliest - time - car.location.Manhattan(r.start), r))
+                .Select(r => Tuple.Create((time + car.location.Manhattan(r.start) <= r.earliest ? bonus : 0) + r.length, r))
                 .OrderByDescending(t => t.Item1)
+                //.OrderByDescending(t => t.Item2.length)
                 .Select(t => t.Item2)
                 .FirstOrDefault();
         }
 
-        static void RunSimulation(Func<List<Ride>, Car, int, Ride> strategy, List<Ride> rides, List<Car> cars, int bonus, int steps)
+        static void RunSimulation(Func<List<Ride>, Car, int, int, Ride> strategy, List<Ride> rides, List<Car> cars, int bonus, int steps)
         {
             for (int t = 0; t < steps; t++)
             {
@@ -109,7 +115,7 @@ namespace HashCode2018
                 {
                     if (car.ride == null)
                     {
-                        var ride = strategy(rides, car, t);
+                        var ride = strategy(rides, car, t, bonus);
                         if (ride == null)
                         {
                             continue;
@@ -155,7 +161,7 @@ namespace HashCode2018
             {
                 Console.WriteLine($"{car.ridesDone.Count} {string.Join(" ", car.ridesDone)}");
             }
-            Console.Error.WriteLine("SCORE: {0}", cars.Sum(c => c.score));
+            Console.Error.WriteLine("{0}", cars.Sum(c => c.score));
         }
     }
 }

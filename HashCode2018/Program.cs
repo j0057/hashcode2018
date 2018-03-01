@@ -136,7 +136,7 @@ namespace HashCode2018
 
             foreach (var car in cars)
             {
-                Console.WriteLine($"{car.index} {string.Join(" ", car.ridesDone)}");
+                Console.WriteLine($"{car.ridesDone.Count} {string.Join(" ", car.ridesDone)}");
             }
             Console.Error.WriteLine("SCORE: {0}", cars.Sum(c => c.score));
         }

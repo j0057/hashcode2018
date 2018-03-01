@@ -21,10 +21,13 @@ namespace HashCode2018
         public Tuple<int, int> finish;
         public int earliest;
         public int latest;
+        public bool busy = false;
+        public bool done = false;
 
         public static Ride Parse(string line)
         {
             var nums = line.Split(' ').Select(int.Parse).ToArray();
+
             return new Ride
             {
                 start = Tuple.Create(nums[0], nums[1]),
@@ -35,11 +38,21 @@ namespace HashCode2018
         }
     }
 
+    public class Car
+    {
+        public Ride currentRide = null;
+        public Tuple<int, int> lastLocation = Tuple.Create(0, 0);
+        public int distanceToStart;
+        public int distanceToFinish;
+
+    }
+
     class Program
     {
         static void ParseFirst(string line, out int rows, out int cols, out int vehicles, out int rides, out int bonus, out int steps)
         {
             var coords = line.Split(' ').Select(int.Parse).ToArray();
+
             rows = coords[0];
             cols = coords[1];
             vehicles = coords[2];

@@ -98,17 +98,17 @@ namespace HashCode2018
             // vind er een waar de earliest zo dicht mogelijk bij huidige time + afstand van car location naar ride start
             return rides
                 .Where(r => !r.busy && !r.done)
-                .Select(r => Tuple.Create(r.latest, r))
+                //.Select(r => Tuple.Create(r.latest, r))
                 /* hoe veel tijd er nog is tot het begin van de rit - hoe lang het nog rijden is */
                 //.Select(r => Tuple.Create(r.earliest - time - car.location.Manhattan(r.start), r))
-                /*
-                .Select(r => Tuple.Create(time + car.location.Manhattan(r.start) + r.length < r.latest
-                                            ? ((time + car.location.Manhattan(r.start) <= r.earliest ? bonus : 0) + r.length)
-                                            : 0, r))
-                */
-                .OrderBy(t => t.Item1)
+                //.Select(r => Tuple.Create(time + car.location.Manhattan(r.start) + r.length < r.latest
+                //                            ? ((time + car.location.Manhattan(r.start) <= r.earliest ? bonus : 0) + r.length)
+                //                            : 0, r))
+                //.OrderBy(t => t.Item1)
                 //.OrderByDescending(t => t.Item2.length)
-                .Select(t => t.Item2)
+                //.Select(t => t.Item2)
+                .OrderBy(r => r.length)
+                .ThenBy(r => r.latest)
                 .FirstOrDefault();
         }
 
@@ -172,6 +172,8 @@ namespace HashCode2018
                 Console.WriteLine($"{car.ridesDone.Count} {string.Join(" ", car.ridesDone)}");
             }
             Console.Error.WriteLine("{0}", cars.Sum(c => c.score));
+
+            var missed = rides.Where(r => !r.done).ToList();
         }
     }
 }

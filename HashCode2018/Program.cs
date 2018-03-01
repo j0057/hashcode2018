@@ -81,10 +81,15 @@ namespace HashCode2018
                 .Select(i => new Car { index = i })
                 .ToList();
 
-            RunSimulation(rides, cars, bonus, steps);
+            RunSimulation(FirstStrategy, rides, cars, bonus, steps);
         }
 
-        static void RunSimulation(List<Ride> rides, List<Car> cars, int bonus, int steps)
+        static Ride FirstStrategy(List<Ride> rides, Car car, int time)
+        {
+            return rides.FirstOrDefault(r => !r.busy && !r.done);
+        }
+
+        static void RunSimulation(Func<List<Ride>, Car, int, Ride> strategy, List<Ride> rides, List<Car> cars, int bonus, int steps)
         {
             for (int t = 0; t < steps; t++)
             {
@@ -92,7 +97,7 @@ namespace HashCode2018
                 {
                     if (car.ride == null)
                     {
-                        var ride = rides.FirstOrDefault(r => !r.busy && !r.done);
+                        var ride = strategy(rides, car, t);
                         if (ride == null)
                         {
                             continue;

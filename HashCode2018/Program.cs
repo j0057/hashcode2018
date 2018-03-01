@@ -47,8 +47,6 @@ namespace HashCode2018
             ParseFirst(lines[0], out var rows, out var cols, out var vehicles, out var rideCount, out var bonus, out var steps);
 
             var rides = lines.Skip(1).Select(Ride.Parse).ToList();
-
-            Console.ReadLine();
         }
     }
 }

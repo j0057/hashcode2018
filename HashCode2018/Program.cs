@@ -94,6 +94,7 @@ namespace HashCode2018
             // zo vaak mogelijk bonus : 
             // vind er een waar de earliest zo dicht mogelijk bij huidige time + afstand van car location naar ride start
             return rides
+                .Where(r => !r.busy && !r.done)
                 .Select(r => Tuple.Create(r.earliest - time - car.location.Manhattan(r.start), r))
                 .OrderByDescending(t => t.Item1)
                 .Select(t => t.Item2)

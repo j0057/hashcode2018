@@ -44,7 +44,7 @@ namespace HashCode2018
     {
         public int index;
         public Ride ride = null;
-        public Tuple<int, int> lastLocation = Tuple.Create(0, 0);
+        public Tuple<int, int> location = Tuple.Create(0, 0);
         public int distanceToStart;
         public int distanceToFinish;
         public List<int> ridesDone = new List<int>();
@@ -81,12 +81,23 @@ namespace HashCode2018
                 .Select(i => new Car { index = i })
                 .ToList();
 
-            RunSimulation(FirstStrategy, rides, cars, bonus, steps);
+            RunSimulation(ClosestStrategy, rides, cars, bonus, steps);
         }
 
         static Ride FirstStrategy(List<Ride> rides, Car car, int time)
         {
             return rides.FirstOrDefault(r => !r.busy && !r.done);
+        }
+
+        static Ride ClosestStrategy(List<Ride> rides, Car car, int time)
+        {
+            // zo vaak mogelijk bonus : 
+            // vind er een waar de earliest zo dicht mogelijk bij huidige time + afstand van car location naar ride start
+            return rides
+                .Select(r => Tuple.Create(r.earliest - time - car.location.Manhattan(r.start), r))
+                .OrderByDescending(t => t.Item1)
+                .Select(t => t.Item2)
+                .FirstOrDefault();
         }
 
         static void RunSimulation(Func<List<Ride>, Car, int, Ride> strategy, List<Ride> rides, List<Car> cars, int bonus, int steps)
@@ -104,7 +115,7 @@ namespace HashCode2018
                         }
                         ride.busy = true;
                         car.ride = ride;
-                        car.distanceToStart = car.lastLocation.Manhattan(ride.start);
+                        car.distanceToStart = car.location.Manhattan(ride.start);
                         car.distanceToFinish = ride.start.Manhattan(ride.finish);
                     }
 
@@ -124,7 +135,7 @@ namespace HashCode2018
 
                     if (car.distanceToFinish == 0)
                     {
-                        car.lastLocation = car.ride.finish;
+                        car.location = car.ride.finish;
 
                         car.ridesDone.Add(car.ride.index);
 

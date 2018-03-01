@@ -100,7 +100,9 @@ namespace HashCode2018
                 .Where(r => !r.busy && !r.done)
                 /* hoe veel tijd er nog is tot het begin van de rit - hoe lang het nog rijden is */
                 //.Select(r => Tuple.Create(r.earliest - time - car.location.Manhattan(r.start), r))
-                .Select(r => Tuple.Create((time + car.location.Manhattan(r.start) <= r.earliest ? bonus : 0) + r.length, r))
+                .Select(r => Tuple.Create(time + car.location.Manhattan(r.start) + r.length < r.latest
+                                            ? ((time + car.location.Manhattan(r.start) <= r.earliest ? bonus : 0) + r.length)
+                                            : 0, r))
                 .OrderByDescending(t => t.Item1)
                 //.OrderByDescending(t => t.Item2.length)
                 .Select(t => t.Item2)

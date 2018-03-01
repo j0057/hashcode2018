@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace HashCode2018
 {
+    public static class TupleExtensions
+    {
+        public static int Manhattan(this Tuple<int, int> a, Tuple<int, int> b)
+        {
+            return Math.Abs(a.Item1 - b.Item1) + Math.Abs(a.Item2 - b.Item2);
+        }
+    }
+
     public class Ride
     {
         public Tuple<int, int> start;
